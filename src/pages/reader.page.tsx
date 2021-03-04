@@ -1,13 +1,22 @@
-import React, {FunctionComponent, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {useState} from 'react';
 import {useSelector} from 'react-redux';
 import {useHistory} from 'react-router-dom';
-import {useTextSelection} from 'use-text-selection';
-import ReactHtmlParser, {convertNodeToElement, Transform} from 'react-html-parser';
-import {Popover} from 'react-text-selection-popover';
-import styled, {css} from 'styled-components';
+import ReactHtmlParser, {
+	convertNodeToElement,
+	Transform,
+} from 'react-html-parser';
+import styled from 'styled-components';
 
-import {BackHome, ChapterController, ChaptersMenu, Page, SelectStyle} from '../components';
+import {
+	BackHome,
+	ChapterController,
+	ChaptersMenu,
+	Highlight,
+	HighlightData,
+	Page,
+	SelectStyle,
+} from '../components';
 import {RootState} from '../store';
 import {Color} from '../store/settings/types';
 import {useWindowSize} from '../hooks';
@@ -18,13 +27,13 @@ interface ContainerProps {
 
 const Container = styled.div<ContainerProps>`
   background: ${({background}) => background};
-	position: fixed;
-	top: 0;
-	right: 0;
-	bottom: 80px;
-	left: 0;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 80px;
+  left: 0;
   overflow-y: scroll;
-	overflow-scrolling: touch;
+  overflow-scrolling: touch;
 `;
 
 const SelectStyleContainer = styled.div`
@@ -67,113 +76,23 @@ const ContentContainer = styled.div<ContentContainerProps>`
   color: ${({color}) => color};
   font-size: ${({fontSize}) => 1 + fontSize / 10}em;
   padding: 0 20px;
-	
-	& > div {
-		padding: 80px 0;
-	}
-`;
-
-interface TextSelectionPopoverProps {
-	left: number;
-	width: number;
-	top: number;
-	shadow: boolean;
-	background: Color;
-}
-
-const TextSelectionPopover = styled.div<TextSelectionPopoverProps>`
-  position: absolute;
-  left: ${({left, width}) => left + width / 2}px;
-  top: ${({top}) => top - 50}px;
-  margin-left: -35px;
-  width: 70px;
-  height: 40px;
-  border-radius: 20px;
-  padding: 10px;
-  display: flex;
-  flex-direction: row;
-  column-gap: 10px;
-  background: ${({background}) => background};
-
-  ${({shadow}) => shadow && css`
-    box-shadow: 0 10px 30px 0 #00000029;
-  `}
-`;
-
-interface HighlightButtonProps {
-	color: Color;
-	background: Color;
-}
-
-const HighlightButton = styled.div<HighlightButtonProps>`
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
-  background-color: ${({color}) => color};
-  position: relative;
 
   & > div {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 70%;
-    height: 70%;
-    border-radius: 50%;
-    border: 3px solid ${({color}) => color};
-    transform: translate(-50%, -50%);
-    transition: all 336ms;
-  }
-
-  &:hover {
-    & > div {
-      border-color: ${({background}) => background};
-    }
+    padding: 80px 0;
   }
 `;
-
-const renderTextSelection = (shadow: boolean, background: Color, onHighlightClick: (className: string, range: Range) => void): FunctionComponent<ReturnType<typeof useTextSelection>> => (
-	{
-		clientRect,
-		isCollapsed,
-	},
-) => {
-	if (!clientRect || isCollapsed) return null;
-
-	const onHighlightButtonClick = (className: string) => () => {
-		const range = window.getSelection()!.getRangeAt(0);
-
-		onHighlightClick(className, range);
-	};
-
-	return (
-		<TextSelectionPopover left={clientRect?.left || 0} top={clientRect?.top || 0} width={clientRect?.width || 0}
-													shadow={shadow} background={background}>
-			<HighlightButton color={Color.CORNSILK} background={background} onClick={onHighlightButtonClick('color_1')}>
-				<div />
-			</HighlightButton>
-			<HighlightButton color={Color.TURQUOISE} background={background} onClick={onHighlightButtonClick('color_1')}>
-				<div />
-			</HighlightButton>
-		</TextSelectionPopover>
-	);
-};
-
-interface Highlight {
-	range: Range;
-	className: string;
-}
 
 export const Reader = () => {
 	const history = useHistory();
 
 	const {
 		book: {data, currentChapter},
-		settings: {theme: {foreground, secondaryBackground, shadow, background}, fontSize},
+		settings: {theme: {foreground, background}, fontSize},
 	} = useSelector((state: RootState) => state);
 
 	const [isLoading, setLoading] = useState(false);
 	const [html, setHtml] = useState('');
-	const [highlights, setHighlights] = useState<Highlight[]>([]);
+	const [highlights, setHighlights] = useState<HighlightData[]>([]);
 
 	const {height} = useWindowSize();
 
@@ -226,13 +145,6 @@ export const Reader = () => {
 		}
 	};
 
-	const onHighlightClick = () => (className: string, range: Range) => {
-		setHighlights(highlights => [...highlights, {
-			range,
-			className,
-		}]);
-	};
-
 	return (
 		<Page>
 			<BackHomeContainer>
@@ -244,7 +156,7 @@ export const Reader = () => {
 			<ChaptersMenuContainer>
 				<ChaptersMenu />
 			</ChaptersMenuContainer>
-			<Popover render={renderTextSelection(shadow, secondaryBackground, onHighlightClick())} />
+			<Highlight setHighlights={setHighlights} />
 			<Container background={background}>
 				{
 					isLoading ?
