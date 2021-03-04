@@ -19,7 +19,7 @@ import {
 } from '../components';
 import {RootState} from '../store';
 import {Color} from '../store/settings/types';
-import {useWindowSize} from '../hooks';
+import {useWindowSize, useHighlight, useChapterData} from '../hooks';
 
 interface ContainerProps {
 	background: Color;
@@ -79,47 +79,21 @@ export const Reader = () => {
 	const history = useHistory();
 
 	const {
-		book: {data, currentChapter},
+		book: {data},
 		settings: {theme: {foreground, background}, fontSize},
 	} = useSelector((state: RootState) => state);
 
-	const [isLoading, setLoading] = useState(false);
-	const [html, setHtml] = useState('');
 	const [highlights, setHighlights] = useState<HighlightData[]>([]);
 
 	const {height} = useWindowSize();
+	const {isLoading, html} = useChapterData();
+
+	useHighlight(highlights);
 
 	useEffect(() => {
 		if (!data)
 			history.push('/');
 	}, [data, history]);
-
-	useEffect(() => {
-		setLoading(true);
-		if (data) {
-			const currentChapterId = data.content.chapters[currentChapter].idref;
-
-			const chapter = data.content.items.find(({id}) => id === currentChapterId);
-
-			if (!chapter)
-				return;
-
-			data.result.file(chapter.href)?.async('string')?.then(data => {
-				setHtml(data);
-				setLoading(false);
-			});
-		}
-	}, [currentChapter, data]);
-
-	useEffect(() => {
-		highlights.forEach(({range, className}) => {
-			const span = document.createElement('span');
-
-			span.className = `highlight ${className}`;
-			span.appendChild(range.extractContents());
-			range.insertNode(span);
-		});
-	});
 
 	const transform: Transform = (node, index) => {
 		const removeNodes = [
