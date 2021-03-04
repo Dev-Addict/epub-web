@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import styled, {css} from 'styled-components';
 
 import {Color, FontFamily} from '../../store/settings/types';
-import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../../store';
 import {Close, Menu} from '../../assets';
 import {useWindowSize} from '../../hooks';

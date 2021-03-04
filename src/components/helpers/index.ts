@@ -1,4 +1,5 @@
 export * from './back-home.component';
+export * from './chapter.component';
 export * from './chapter-controller.component';
 export * from './chapters-menu.component';
 export * from './highlight.component';

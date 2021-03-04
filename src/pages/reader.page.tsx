@@ -2,14 +2,10 @@ import React, {useEffect} from 'react';
 import {useState} from 'react';
 import {useSelector} from 'react-redux';
 import {useHistory} from 'react-router-dom';
-import ReactHtmlParser, {
-	convertNodeToElement,
-	Transform,
-} from 'react-html-parser';
 import styled from 'styled-components';
 
 import {
-	BackHome,
+	BackHome, Chapter,
 	ChapterController,
 	ChaptersMenu,
 	Highlight,
@@ -18,16 +14,7 @@ import {
 	SelectStyle,
 } from '../components';
 import {RootState} from '../store';
-import {Color} from '../store/settings/types';
-import {useWindowSize, useHighlight, useChapterData} from '../hooks';
-
-interface ContainerProps {
-	background: Color;
-}
-
-const Container = styled.div<ContainerProps>`
-  background: ${({background}) => background};
-`;
+import {useHighlight} from '../hooks';
 
 const SelectStyleContainer = styled.div`
   position: fixed;
@@ -54,39 +41,14 @@ const ChaptersMenuContainer = styled.div`
   z-index: 2;
 `;
 
-interface ContentContainerProps {
-	background: Color;
-	height: number;
-	color: Color;
-	fontSize: number;
-}
-
-const ContentContainer = styled.div<ContentContainerProps>`
-  background: ${({background}) => background};
-  height: ${({height}) => height}px;
-  background: ${({background}) => background};
-  transition: all 336ms;
-  color: ${({color}) => color};
-  font-size: ${({fontSize}) => 1 + fontSize / 10}em;
-  padding: 0 20px;
-
-  & > div {
-    padding: 80px 0;
-  }
-`;
-
 export const Reader = () => {
 	const history = useHistory();
 
 	const {
 		book: {data},
-		settings: {theme: {foreground, background}, fontSize},
 	} = useSelector((state: RootState) => state);
 
 	const [highlights, setHighlights] = useState<HighlightData[]>([]);
-
-	const {height} = useWindowSize();
-	const {isLoading, html} = useChapterData();
 
 	useHighlight(highlights);
 
@@ -94,23 +56,6 @@ export const Reader = () => {
 		if (!data)
 			history.push('/');
 	}, [data, history]);
-
-	const transform: Transform = (node, index) => {
-		const removeNodes = [
-			'img',
-			'header',
-		];
-		const turnNodes = [
-			'html',
-			'body',
-		];
-
-		if (removeNodes.includes(node.name)) return null;
-		if (turnNodes.includes(node.name)) {
-			node.name = 'div';
-			return convertNodeToElement(node, index, transform);
-		}
-	};
 
 	return (
 		<Page>
@@ -124,17 +69,7 @@ export const Reader = () => {
 				<ChaptersMenu />
 			</ChaptersMenuContainer>
 			<Highlight setHighlights={setHighlights} />
-			<Container background={background}>
-				{
-					isLoading ?
-						<></> :
-						<ContentContainer background={background} height={height} color={foreground} fontSize={fontSize}>
-							{ReactHtmlParser(html, {
-								transform: transform,
-							})}
-						</ContentContainer>
-				}
-			</Container>
+			<Chapter />
 			<ChapterController />
 		</Page>
 	);

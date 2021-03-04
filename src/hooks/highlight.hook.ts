@@ -1,5 +1,6 @@
-import {HighlightData} from '../components';
 import {useEffect} from 'react';
+
+import {HighlightData} from '../components';
 
 export const useHighlight = (highlights: HighlightData[]) => {
 	useEffect(() => {
