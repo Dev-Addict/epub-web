@@ -27,13 +27,6 @@ interface ContainerProps {
 
 const Container = styled.div<ContainerProps>`
   background: ${({background}) => background};
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 80px;
-  left: 0;
-  overflow-y: scroll;
-  overflow-scrolling: touch;
 `;
 
 const SelectStyleContainer = styled.div`

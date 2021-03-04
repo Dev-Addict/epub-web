@@ -15,6 +15,7 @@ interface StyleProps {
 const Style = createGlobalStyle<StyleProps>`
   * {
     font-family: ${({fontFamily}) => fontFamily};
+		overflow-scrolling: touch;
   }
 
   html {
