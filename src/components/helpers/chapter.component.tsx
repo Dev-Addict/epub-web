@@ -1,11 +1,11 @@
 import {useSelector} from 'react-redux';
 import ReactHtmlParser, {
 	convertNodeToElement,
-	Transform
+	Transform,
 } from 'react-html-parser';
 import styled from 'styled-components';
 
-import {useChapterData} from '../../hooks';
+import {useChapterData, useWindowSize} from '../../hooks';
 import {Color} from '../../store/settings/types';
 import {RootState} from '../../store';
 
@@ -13,6 +13,7 @@ interface ContentContainerProps {
 	background: Color;
 	color: Color;
 	fontSize: number;
+	width: number;
 }
 
 const ContentContainer = styled.div<ContentContainerProps>`
@@ -20,11 +21,11 @@ const ContentContainer = styled.div<ContentContainerProps>`
   transition: all 336ms;
   color: ${({color}) => color};
   font-size: ${({fontSize}) => 1 + fontSize / 10}em;
-  padding: 0 20px;
+  padding: ${({width}) => {
+    const side = width > 1000 ? (width - 800) / 2 : 20;
 
-  & > div {
-    padding: 80px 0;
-  }
+    return `80px ${side}px 160px ${side}px`;
+  }};
 `;
 
 const transform: Transform = (node, index) => {
@@ -49,12 +50,13 @@ export const Chapter = () => {
 		settings: {theme: {foreground, background}, fontSize},
 	} = useSelector((state: RootState) => state);
 
+	const {width} = useWindowSize();
 	const {isLoading, html} = useChapterData();
 
 	return (
-		<ContentContainer fontSize={fontSize} color={foreground} background={background}>
+		<ContentContainer fontSize={fontSize} color={foreground} background={background} width={width}>
 			{
-				isLoading &&
+				!isLoading &&
 				ReactHtmlParser(html, {
 					transform,
 				})
