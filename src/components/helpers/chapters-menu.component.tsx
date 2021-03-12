@@ -75,7 +75,7 @@ const CloseControllerContainer = styled.div<CloseControllerContainerProps>`
   padding: 20px;
   text-align: center;
   transition: all 336ms;
-	border-bottom: 2px solid ${({color}) => color};
+  border-bottom: 2px solid ${({color}) => color};
 
   &:hover {
     opacity: 0.7;
@@ -114,7 +114,7 @@ const ChapterContainer = styled.div<ChapterControllerProps>`
 export const ChaptersMenu = () => {
 	const dispatch = useDispatch();
 	const {
-		book: {data, currentChapter},
+		book: {data, currentChapter, chaptersNames},
 		settings: {theme: {secondaryBackground, shadow, foreground, accent}, fontFamily},
 	} = useSelector((state: RootState) => state);
 
@@ -131,7 +131,9 @@ export const ChaptersMenu = () => {
 	const renderChapters = () => data?.content?.chapters?.map((_, i) => (
 		<ChapterContainer fontFamily={fontFamily} color={foreground} selected={i === currentChapter}
 											onClick={onChapterClick(i)} borderColor={accent}>
-			Chapter {i + 1}
+			{
+				(chaptersNames && chaptersNames[i]) || `Chapter ${i + 1}`
+			}
 		</ChapterContainer>
 	));
 

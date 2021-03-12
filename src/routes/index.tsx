@@ -5,7 +5,7 @@ import {
 	Route,
 } from 'react-router-dom';
 
-import {Home, Reader} from '../pages';
+import {ChaptersNames, Home, Reader} from '../pages';
 
 export const RootRouter = () => {
 	return (
@@ -14,6 +14,9 @@ export const RootRouter = () => {
 				<Switch>
 					<Route path='/' exact>
 						<Home />
+					</Route>
+					<Route path="/chapters-names" exact>
+						<ChaptersNames/>
 					</Route>
 					<Route path='/reader' exact>
 						<Reader />

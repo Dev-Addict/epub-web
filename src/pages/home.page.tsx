@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import {Button, FileInput, Page} from '../components';
 import {handleEpubThunk} from '../thunks';
 import {Color} from '../store/settings/types';
-import {RootState} from '../store';
 import {useHistory} from 'react-router-dom';
+import {RootState} from '../store';
 
 const Container = styled.div`
   width: 100%;
@@ -32,7 +32,7 @@ export const Home = () => {
 
 	useEffect(() => {
 		if (data)
-			history.push('/reader');
+			history.push('/chapters-names');
 	}, [data, history]);
 
 	return (
