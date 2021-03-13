@@ -32,7 +32,7 @@ export const Home = () => {
 
 	useEffect(() => {
 		if (data)
-			history.push('/chapters-names');
+			history.push('/reader');
 	}, [data, history]);
 
 	return (

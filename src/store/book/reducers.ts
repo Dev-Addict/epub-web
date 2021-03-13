@@ -1,9 +1,9 @@
-import {BookActionTypes, BookState, SET_CHAPTERS_NAMES, SET_CURRENT_CHAPTER, SET_DATA} from './types';
+import {BookActionTypes, BookState, SET_CURRENT_CHAPTER, SET_DATA, SET_TOC} from './types';
 
 const initialState: BookState = {
 	data: undefined,
 	currentChapter: 0,
-	chaptersNames: undefined,
+	toc: [],
 };
 
 export const bookReducer = (
@@ -15,8 +15,8 @@ export const bookReducer = (
 			return {...state, data: action.payload};
 		case SET_CURRENT_CHAPTER:
 			return {...state, currentChapter: action.payload};
-		case SET_CHAPTERS_NAMES:
-			return {...state, chaptersNames: action.payload};
+		case SET_TOC:
+			return {...state, toc: action.payload};
 		default:
 			return state;
 	}

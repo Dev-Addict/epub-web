@@ -114,7 +114,7 @@ const ChapterContainer = styled.div<ChapterControllerProps>`
 export const ChaptersMenu = () => {
 	const dispatch = useDispatch();
 	const {
-		book: {data, currentChapter, chaptersNames},
+		book: {data, currentChapter, toc},
 		settings: {theme: {secondaryBackground, shadow, foreground, accent}, fontFamily},
 	} = useSelector((state: RootState) => state);
 
@@ -123,17 +123,19 @@ export const ChaptersMenu = () => {
 	const {height} = useWindowSize();
 
 	const onOpenButtonClick = () => () => setOpen(isOpen => !isOpen);
-	const onChapterClick = (chapter: number) => () => {
-		dispatch(setCurrentChapter(chapter));
+	const onChapterClick = (id: string) => () => {
+		const index = data?.content?.chapters?.findIndex(({idref}) => idref === id) || 0;
+		dispatch(setCurrentChapter(index));
 		setOpen(false);
 	};
 
-	const renderChapters = () => data?.content?.chapters?.map((_, i) => (
-		<ChapterContainer fontFamily={fontFamily} color={foreground} selected={i === currentChapter}
-											onClick={onChapterClick(i)} borderColor={accent}>
-			{
-				(chaptersNames && chaptersNames[i]) || `Chapter ${i + 1}`
-			}
+	const currentChapterData = data?.content?.chapters && data?.content?.chapters[currentChapter];
+	const currentChapterId = currentChapterData?.idref;
+
+	const renderChapters = () => toc.map(({label, id}) => (
+		<ChapterContainer fontFamily={fontFamily} color={foreground} selected={currentChapterId === id}
+											onClick={onChapterClick(id)} borderColor={accent}>
+			{label}
 		</ChapterContainer>
 	));
 

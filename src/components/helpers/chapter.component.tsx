@@ -56,10 +56,11 @@ export const Chapter = () => {
 	return (
 		<ContentContainer fontSize={fontSize} color={foreground} background={background} width={width}>
 			{
-				!isLoading &&
-				ReactHtmlParser(html, {
-					transform,
-				})
+				isLoading ?
+					'Loading...' :
+					ReactHtmlParser(html, {
+						transform,
+					})
 			}
 		</ContentContainer>
 	);

@@ -1,43 +1,64 @@
 import JSZip, {JSZipObject, loadAsync} from 'jszip';
 import xmlParser from 'fast-xml-parser';
 
+const xmlOptions = {
+	parseAttributeValue: true,
+	attrNodeName: 'attr',
+	textNodeName: '#text',
+	ignoreNameSpace: false,
+	allowBooleanAttributes: true,
+	trimValues: true,
+	cdataTagName: '_c',
+	cdataPositionChar: '\\c',
+	parseTrueNumberOnly: true,
+	arrayMode: false,
+	attributeNamePrefix: '',
+	ignoreAttributes: false,
+};
+
+const arrayXmlOptions = {
+	...xmlOptions,
+	textNodeName: 'text',
+	arrayMode: true,
+};
+
+export interface Content {
+	meta: {
+		title?: string;
+		author?: string;
+		publisher?: string;
+	};
+	items: {
+		href: string;
+		id: string;
+		'meta-type': string;
+	}[];
+	chapters: {
+		idref: string;
+	}[];
+}
+
+export interface TocItem {
+	href: string;
+	label: string;
+	id: string;
+}
+
 export interface BookData {
 	result: JSZip;
-	content: {
-		meta: {
-			title?: string;
-			author?: string;
-			publisher?: string;
-		};
-		items: {
-			href: string;
-			id: string;
-			'meta-type': string;
-		}[];
-		chapters: {
-			idref: string;
-		}[];
-	};
+	content: Content;
+}
+
+export interface EpubData {
+	book: BookData;
+	toc: TocItem[];
 }
 
 const getRootFile = async (file: JSZipObject | null): Promise<string> => {
 	if (!file) throw new Error('Invalid Epub file.');
 	const content = await file.async('string');
 
-	const data = xmlParser.parse(content, {
-		parseAttributeValue: true,
-		attrNodeName: 'attr',
-		textNodeName: '#text',
-		ignoreNameSpace: false,
-		allowBooleanAttributes: true,
-		trimValues: true,
-		cdataTagName: '_c',
-		cdataPositionChar: '\\c',
-		parseTrueNumberOnly: true,
-		arrayMode: false,
-		attributeNamePrefix: '',
-		ignoreAttributes: false,
-	});
+	const data = xmlParser.parse(content, xmlOptions);
 
 	const rootFileData = data?.container?.rootfiles?.rootfile?.attr;
 
@@ -66,20 +87,7 @@ const parseMetadata = (metadata: {[key: string]: any}) => {
 const parseContentData = async (contentFile: JSZipObject | null) => {
 	if (!contentFile) throw new Error('Invalid Epub file.');
 
-	const contentData = await xmlParser.parse(await contentFile.async('string'), {
-		parseAttributeValue: true,
-		attrNodeName: 'attr',
-		textNodeName: 'text',
-		ignoreNameSpace: false,
-		allowBooleanAttributes: true,
-		trimValues: true,
-		cdataTagName: '_c',
-		cdataPositionChar: '\\c',
-		parseTrueNumberOnly: true,
-		arrayMode: true,
-		attributeNamePrefix: '',
-		ignoreAttributes: false,
-	});
+	const contentData = await xmlParser.parse(await contentFile.async('string'), arrayXmlOptions);
 
 	return {
 		meta: parseMetadata(contentData.package[0].metadata[0]),
@@ -92,7 +100,35 @@ const parseContentData = async (contentFile: JSZipObject | null) => {
 	};
 };
 
-export const epubParser = async (file: File): Promise<BookData> => {
+const parseToc = async (tocFile: JSZipObject | null, {items}: Content) => {
+	if (!tocFile)
+		return [];
+
+	const result: TocItem[] = [];
+
+	const tocData = await xmlParser.parse(await tocFile.async('string'), arrayXmlOptions);
+	const ncx = tocData?.ncx && tocData.ncx[0];
+	const navMap = ncx?.navMap && ncx.navMap[0];
+	const navPoint = navMap?.navPoint;
+
+	(navPoint || []).forEach(({content, navLabel}: any) => {
+		const contentDetail = content && content[0];
+		const navLabelDetail = navLabel && navLabel[0];
+
+		const href = contentDetail?.attr?.src || '';
+		const id = items.find((item) => item.href === href)?.id || '';
+
+		result.push({
+			href,
+			label: navLabelDetail?.text || '',
+			id
+		});
+	});
+
+	return result;
+};
+
+export const epubParser = async (file: File): Promise<EpubData> => {
 	try {
 		const result = await loadAsync(file);
 
@@ -102,9 +138,16 @@ export const epubParser = async (file: File): Promise<BookData> => {
 
 		const contentFile = result.file(rootFilePath);
 
+		const content = await parseContentData(contentFile);
+
+		const toc = await parseToc(result.file('toc.ncx'), content);
+
 		return {
-			result,
-			content: await parseContentData(contentFile),
+			book: {
+				result,
+				content,
+			},
+			toc
 		};
 	} catch (err) {
 		throw new Error('Invalid Epub file.');

@@ -1,5 +1,5 @@
-import {BookData} from '../../utils';
-import {BookActionTypes, SET_CHAPTERS_NAMES, SET_CURRENT_CHAPTER, SET_DATA} from './types';
+import {BookData, TocItem} from '../../utils';
+import {BookActionTypes, SET_CURRENT_CHAPTER, SET_DATA, SET_TOC} from './types';
 
 export const setData = (data?: BookData): BookActionTypes => ({
 	type: SET_DATA,
@@ -11,7 +11,7 @@ export const setCurrentChapter = (currentChapter: number): BookActionTypes => ({
 	payload: currentChapter,
 });
 
-export const setChaptersNames = (chaptersNames: string[]): BookActionTypes => ({
-	type: SET_CHAPTERS_NAMES,
-	payload: chaptersNames
+export const setToc = (toc: TocItem[]): BookActionTypes => ({
+	type: SET_TOC,
+	payload: toc
 });

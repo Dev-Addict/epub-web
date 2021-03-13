@@ -4,7 +4,7 @@ import {ThunkAction} from 'redux-thunk';
 import {epubParser} from '../utils';
 import {RootState} from '../store';
 import {setError, setLoading} from '../store/app/actions';
-import {setData} from '../store/book/actions';
+import {setData, setToc} from '../store/book/actions';
 
 export const handleEpubThunk = (
 	file: File,
@@ -14,9 +14,10 @@ export const handleEpubThunk = (
 	dispatch(setLoading(true));
 
 	try {
-		const data = await epubParser(file);
+		const {book, toc} = await epubParser(file);
 
-		dispatch(setData(data));
+		dispatch(setData(book));
+		dispatch(setToc(toc));
 	} catch (error) {
 		dispatch(setError('Invalid input. Error while trying to parse the file.'));
 	}
