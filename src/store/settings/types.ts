@@ -2,6 +2,7 @@ export enum FontFamily {
 	QUICKSAND = '\'Quicksand\', sans-serif',
 	PT_SANS = '\'PT Sans\', sans-serif',
 	PT_SERIF = '\'PT Serif\', serif',
+	LALEZAR = '\'Lalezar\', cursive',
 }
 
 export enum Color {
@@ -12,7 +13,6 @@ export enum Color {
 	ALICE_BLUE = '#F2F5FB',
 	CORNSILK = '#FFF6D7',
 	TURQUOISE = '#6ADDD3',
-	PLATINUM = '#E6E8E6'
 }
 
 export interface Theme {

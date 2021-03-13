@@ -70,7 +70,7 @@ const Panel = styled.div<PanelProps>`
   background: ${({background}) => background};
   border-radius: 10px;
   transition: all 336ms;
-  top: ${({active}) => active ? '0' : '-400px'};
+  top: ${({active}) => active ? '0' : '-500px'};
   color: ${({color}) => color};
 
   &:after, &:before {
@@ -190,6 +190,9 @@ export const SelectStyle = () => {
 					<Button primary={fontFamily !== FontFamily.PT_SERIF} fill
 									color={fontFamily === FontFamily.PT_SERIF ? Color.WHITE : foreground}
 									onClick={onFontFamilyClick(FontFamily.PT_SERIF)} fontFamily={FontFamily.PT_SERIF}>PT Serif</Button>
+					<Button primary={fontFamily !== FontFamily.LALEZAR} fill
+									color={fontFamily === FontFamily.LALEZAR ? Color.WHITE : foreground}
+									onClick={onFontFamilyClick(FontFamily.LALEZAR)} fontFamily={FontFamily.LALEZAR}>Lalezar</Button>
 					<ThemeButton shadow={false} background={primary} onClick={onThemeClick()}>
 						{
 							shadow ?
