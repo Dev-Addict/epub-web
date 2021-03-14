@@ -3,7 +3,7 @@ import ReactHtmlParser, {
 	convertNodeToElement,
 	Transform,
 } from 'react-html-parser';
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
 
 import {useChapterData, useWindowSize} from '../../hooks';
 import {Color} from '../../store/settings/types';
@@ -14,6 +14,7 @@ interface ContentContainerProps {
 	color: Color;
 	fontSize: number;
 	width: number;
+	rtl?: boolean;
 }
 
 const ContentContainer = styled.div<ContentContainerProps>`
@@ -26,6 +27,11 @@ const ContentContainer = styled.div<ContentContainerProps>`
 
     return `80px ${side}px 160px ${side}px`;
   }};
+  direction: ltr;
+
+  ${({rtl}) => rtl && css`
+    direction: rtl;
+  `}
 `;
 
 const transform: Transform = (node, index) => {
@@ -54,7 +60,8 @@ export const Chapter = () => {
 	const {isLoading, html} = useChapterData();
 
 	return (
-		<ContentContainer fontSize={fontSize} color={foreground} background={background} width={width}>
+		<ContentContainer fontSize={fontSize} color={foreground} background={background} width={width}
+											rtl={/[\u0591-\u07FF]/.test(html)}>
 			{
 				isLoading ?
 					'Loading...' :
